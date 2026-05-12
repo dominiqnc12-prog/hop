@@ -1,122 +1,121 @@
 :root {
-  --accent: #6366f1; /* Modern Indigo */
-  --accent-secondary: #ec4899; /* Pink/Purple accent */
-  --bg-main: #020617; /* Deepest blue/black */
-  --card-bg: rgba(30, 41, 59, 0.5); /* Semi-transparent */
-  --border: rgba(255, 255, 255, 0.1);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --team-alpha-gold: #fdb927;
+  --team-que-purple: #552583;
+  --dark-base: #000000;
+  --border-weight: 3px;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, sans-serif;
-  background-color: var(--bg-main);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
-  color: var(--text-primary);
-  min-height: 100vh;
+  font-family: 'Black Ops One', 'Arial Black', sans-serif; /* Aggressive font choice */
+  background: var(--dark-base);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Subtle Hero */
+/* 1. Aggressive Split Hero */
 .hero {
+  width: 100%;
   text-align: center;
-  padding: 100px 20px;
-  background: transparent;
+  padding: 80px 0;
+  background: linear-gradient(90deg, 
+    var(--team-que-purple) 49.8%, 
+    #fff 49.8%, 
+    #fff 50.2%, 
+    var(--team-alpha-gold) 50.2%);
+  border-bottom: var(--border-weight) solid white;
 }
 
 h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
-  background: linear-gradient(to right, #fff, var(--text-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 4rem;
+  text-transform: uppercase;
+  text-shadow: 4px 4px 0px #000;
+  margin: 0;
 }
 
-/* Glassmorphism Card */
+/* 2. Centered Container */
 .card {
-  max-width: 800px;
-  margin: 20px auto;
+  width: 90%;
+  max-width: 600px;
+  margin: -30px auto 50px;
   padding: 40px;
-  background: var(--card-bg);
-  backdrop-filter: blur(12px); /* Frosty glass effect */
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-
-/* Floating Navigation */
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: center;
-  padding: 15px;
-}
-
-/* Clean, Minimal Buttons */
-.buttons {
-  display: flex;
-  gap: 12px;
-}
-
-button, .alpha, .que {
-  all: unset; /* Reset styles */
-  cursor: pointer;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  background: #111;
+  border: var(--border-weight) solid white;
+  border-radius: 0px; /* Sharp corners for a tougher look */
   text-align: center;
 }
 
-button {
-  background: var(--accent);
+/* 3. Centered, Bordered Buttons */
+.buttons {
+  display: flex;
+  flex-direction: column; /* Stacked for central focus */
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+button, .submit-btn {
+  width: 100%;
+  max-width: 300px;
+  background: transparent;
+  color: white;
+  padding: 18px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: var(--border-weight) solid white; /* Highly visible border */
+  transition: all 0.2s ease;
+}
+
+/* 4. Team-Specific Clashing Colors */
+button.alpha-btn {
+  border-color: var(--team-alpha-gold);
+  color: var(--team-alpha-gold);
+}
+
+button.alpha-btn:hover {
+  background: var(--team-alpha-gold);
+  color: black;
+}
+
+button.que-btn {
+  border-color: var(--team-que-purple);
+  color: var(--team-que-purple);
+}
+
+button.que-btn:hover {
+  background: var(--team-que-purple);
   color: white;
 }
 
-button:hover {
-  background: #4f46e5;
-  transform: translateY(-2px);
-}
-
-/* Voting Logic - Modernized */
+/* 5. The Versus Vote Grid */
 .vote-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 30px;
-}
-
-.alpha {
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
-}
-
-.que {
-  background: rgba(236, 72, 153, 0.1);
-  border: 1px solid rgba(236, 72, 153, 0.3);
-  color: #f9a8d4;
-}
-
-.bar {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  grid-template-columns: 1fr; /* Stacked to keep things centered */
+  gap: 30px;
   margin-top: 20px;
 }
 
-#alphaBar { background: var(--accent); }
-#queBar { background: var(--accent-secondary); }
+.bar {
+  width: 100%;
+  height: 40px;
+  background: #222;
+  border: 2px solid #444;
+  position: relative;
+  overflow: hidden;
+}
 
-.note {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  text-align: center;
+#alphaBar { background: var(--team-alpha-gold); }
+#queBar { background: var(--team-que-purple); }
+
+/* Navigation centered */
+nav {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  border-bottom: 1px solid #333;
 }
