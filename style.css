@@ -1,95 +1,122 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: white;
+:root {
+  --accent: #6366f1; /* Modern Indigo */
+  --accent-secondary: #ec4899; /* Pink/Purple accent */
+  --bg-main: #020617; /* Deepest blue/black */
+  --card-bg: rgba(30, 41, 59, 0.5); /* Semi-transparent */
+  --border: rgba(255, 255, 255, 0.1);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
 }
 
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Subtle Hero */
 .hero {
   text-align: center;
-  padding: 90px 20px;
-  background: linear-gradient(135deg, #552583, #000, #c9a227);
+  padding: 100px 20px;
+  background: transparent;
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #fff, var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* Glassmorphism Card */
 .card {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 30px;
-  background: #1c1c1c;
-  border-radius: 14px;
-  box-shadow: 0 0 20px rgba(255,255,255,0.08);
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 40px;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px); /* Frosty glass effect */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
+/* Floating Navigation */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+}
+
+/* Clean, Minimal Buttons */
 .buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
+  gap: 12px;
 }
 
-a, button {
-  background: #c9a227;
-  color: #111;
-  padding: 14px 22px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  border: none;
+button, .alpha, .que {
+  all: unset; /* Reset styles */
   cursor: pointer;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-align: center;
 }
 
-nav {
-  padding: 20px;
-}
-
-.vote-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.alpha {
-  background: #c9a227;
-}
-
-.que {
-  background: #552583;
+button {
+  background: var(--accent);
   color: white;
 }
 
+button:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+}
+
+/* Voting Logic - Modernized */
+.vote-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.alpha {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+}
+
+.que {
+  background: rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  color: #f9a8d4;
+}
+
 .bar {
-  display: flex;
-  height: 35px;
-  background: #333;
-  border-radius: 8px;
-  overflow: hidden;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-top: 20px;
 }
 
-#alphaBar {
-  background: #c9a227;
-  width: 50%;
-}
-
-#queBar {
-  background: #552583;
-  width: 50%;
-}
+#alphaBar { background: var(--accent); }
+#queBar { background: var(--accent-secondary); }
 
 .note {
-  margin-top: 25px;
-  opacity: 0.8;
-}
-
-@media (max-width: 700px) {
-  .vote-grid {
-    grid-template-columns: 1fr;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-align: center;
 }
