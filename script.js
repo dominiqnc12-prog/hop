@@ -1,77 +1,123 @@
-function getVotes() {
-  return {
-    alpha: Number(localStorage.getItem("alphaVotes")) || 0,
-    que: Number(localStorage.getItem("queVotes")) || 0,
-    locked: localStorage.getItem("votingLocked") === "true"
-  };
+:root {
+  --primary-purple: #552583;
+  --primary-gold: #fdb927; /* Slightly more vibrant gold */
+  --bg-dark: #0a0a0a;
+  --card-bg: #161616;
+  --text-main: #ffffff;
+  --text-dim: #b3b3b3;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-function saveVotes(alpha, que) {
-  localStorage.setItem("alphaVotes", alpha);
-  localStorage.setItem("queVotes", que);
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  line-height: 1.6;
 }
 
-function vote(team) {
-  const votes = getVotes();
-
-  if (votes.locked) {
-    document.getElementById("message").textContent = "Voting is currently locked.";
-    return;
-  }
-
-  if (localStorage.getItem("hasVoted") === "true") {
-    document.getElementById("message").textContent = "You have already voted on this device.";
-    return;
-  }
-
-  if (team === "alpha") votes.alpha++;
-  if (team === "que") votes.que++;
-
-  saveVotes(votes.alpha, votes.que);
-  localStorage.setItem("hasVoted", "true");
-
-  updateResults();
-  document.getElementById("message").textContent = "Vote submitted.";
+/* Hero Section with Animated Gradient */
+.hero {
+  text-align: center;
+  padding: 120px 20px;
+  background: linear-gradient(-45deg, #552583, #111, #c9a227, #000);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
 }
 
-function updateResults() {
-  const votes = getVotes();
-  const total = votes.alpha + votes.que || 1;
-
-  const alphaPercent = (votes.alpha / total) * 100;
-  const quePercent = (votes.que / total) * 100;
-
-  if (document.getElementById("alphaVotes")) {
-    document.getElementById("alphaVotes").textContent = votes.alpha;
-    document.getElementById("queVotes").textContent = votes.que;
-    document.getElementById("alphaBar").style.width = alphaPercent + "%";
-    document.getElementById("queBar").style.width = quePercent + "%";
-  }
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-function resetVotes() {
-  localStorage.removeItem("alphaVotes");
-  localStorage.removeItem("queVotes");
-  localStorage.removeItem("hasVoted");
-  document.getElementById("adminMessage").textContent = "Votes reset.";
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  letter-spacing: -1px;
+  margin-bottom: 1rem;
 }
 
-function lockVoting() {
-  localStorage.setItem("votingLocked", "true");
-  document.getElementById("adminMessage").textContent = "Voting locked.";
+/* Glassmorphism Card Style */
+.card {
+  max-width: 900px;
+  margin: -40px auto 40px; /* Overlaps hero slightly */
+  padding: 40px;
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
-function unlockVoting() {
-  localStorage.setItem("votingLocked", "false");
-  document.getElementById("adminMessage").textContent = "Voting unlocked.";
+/* Improved Buttons */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
 }
 
-updateResults();
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9MY9HuxOZ_2tK7QU0Wh9MxW-1XUSrmA1zVkbqxzJWAyZJm_et_-JL8NvE-7K9XNtaKQ/exec";
+a, button {
+  background: var(--primary-gold);
+  color: #000;
+  padding: 14px 28px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
 
-async function submitToSheet(payload) {
-  await fetch(GOOGLE_SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
+a:hover, button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(253, 185, 39, 0.3);
+  filter: brightness(1.1);
+}
+
+/* Voting Grid & Progress Bars */
+.vote-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.alpha, .que {
+  padding: 20px;
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.alpha { background: rgba(201, 162, 39, 0.1); border: 1px solid var(--primary-gold); }
+.que { background: rgba(85, 37, 131, 0.1); border: 1px solid var(--primary-purple); }
+
+.bar {
+  display: flex;
+  height: 12px; /* Sleeker bar */
+  background: #222;
+  border-radius: 100px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+#alphaBar, #queBar {
+  transition: width 1s ease-in-out;
+  border-radius: 100px;
+}
+
+#alphaBar { background: var(--primary-gold); }
+#queBar { background: var(--primary-purple); }
+
+.note {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* Responsive Tweak */
+@media (max-width: 700px) {
+  .vote-grid { grid-template-columns: 1fr; }
+  .card { margin: 20px; padding: 25px; }
 }
