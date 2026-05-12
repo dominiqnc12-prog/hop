@@ -6,6 +6,13 @@
   <title>Admin Voting Controls</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+  <script>
+const password = prompt("Enter admin password:");
+
+if (password !== "AlphaQue2026") {
+  document.body.innerHTML = "<h1>Access Denied</h1>";
+}
+</script>
 <body>
   <nav><a href="index.html">← Home</a></nav>
 
