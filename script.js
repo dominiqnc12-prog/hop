@@ -67,7 +67,7 @@ function unlockVoting() {
 }
 
 updateResults();
-const GOOGLE_SCRIPT_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9MY9HuxOZ_2tK7QU0Wh9MxW-1XUSrmA1zVkbqxzJWAyZJm_et_-JL8NvE-7K9XNtaKQ/exec";
 
 async function submitToSheet(payload) {
   await fetch(GOOGLE_SCRIPT_URL, {
