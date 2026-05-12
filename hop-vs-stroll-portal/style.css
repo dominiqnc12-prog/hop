@@ -1,0 +1,95 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+}
+
+.hero {
+  text-align: center;
+  padding: 90px 20px;
+  background: linear-gradient(135deg, #552583, #000, #c9a227);
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+.card {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #1c1c1c;
+  border-radius: 14px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.08);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+a, button {
+  background: #c9a227;
+  color: #111;
+  padding: 14px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+nav {
+  padding: 20px;
+}
+
+.vote-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.alpha {
+  background: #c9a227;
+}
+
+.que {
+  background: #552583;
+  color: white;
+}
+
+.bar {
+  display: flex;
+  height: 35px;
+  background: #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#alphaBar {
+  background: #c9a227;
+  width: 50%;
+}
+
+#queBar {
+  background: #552583;
+  width: 50%;
+}
+
+.note {
+  margin-top: 25px;
+  opacity: 0.8;
+}
+
+@media (max-width: 700px) {
+  .vote-grid {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
