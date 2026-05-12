@@ -1,121 +1,150 @@
 :root {
-  --team-alpha-gold: #fdb927;
-  --team-que-purple: #552583;
-  --dark-base: #000000;
-  --border-weight: 3px;
+  --que-purple: #4a1d70;
+  --que-purple-bright: #7b2cbf;
+  --alpha-gold: #b38f00;
+  --alpha-gold-bright: #fdb927;
+  --metal-bg: #0d0d0d;
+  --glass: rgba(255, 255, 255, 0.03);
+  --border-glow: rgba(255, 255, 255, 0.2);
 }
 
 body {
   margin: 0;
-  font-family: 'Black Ops One', 'Arial Black', sans-serif; /* Aggressive font choice */
-  background: var(--dark-base);
-  color: white;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--metal-bg);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* 1. Dynamic Diagonal Split Background */
+.hero {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: 
+    linear-gradient(115deg, var(--que-purple) 49.8%, #fff 50%, var(--alpha-gold) 50.2%);
+  padding: 40px 20px;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+}
+
+/* Title Styling with "Steel" Finish */
+h1 {
+  font-size: clamp(1.5rem, 6vw, 3.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+  color: #eee;
+  text-shadow: 
+    0 1px 0 #ccc, 
+    0 2px 0 #c5c5c5, 
+    0 3px 0 #bbb, 
+    0 4px 0 #b1b1b1, 
+    0 10px 20px rgba(0,0,0,0.5);
+}
+
+/* 2. Glassmorphism Info Card */
+.card {
+  max-width: 700px;
+  margin: -60px auto 40px;
+  background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.95));
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--border-glow);
+  padding: 30px;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+}
+
+/* 3. The Gaming "Skew" Buttons */
+.buttons {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-/* 1. Aggressive Split Hero */
-.hero {
-  width: 100%;
-  text-align: center;
-  padding: 80px 0;
-  background: linear-gradient(90deg, 
-    var(--team-que-purple) 49.8%, 
-    #fff 49.8%, 
-    #fff 50.2%, 
-    var(--team-alpha-gold) 50.2%);
-  border-bottom: var(--border-weight) solid white;
-}
-
-h1 {
-  font-size: 4rem;
-  text-transform: uppercase;
-  text-shadow: 4px 4px 0px #000;
-  margin: 0;
-}
-
-/* 2. Centered Container */
-.card {
-  width: 90%;
-  max-width: 600px;
-  margin: -30px auto 50px;
-  padding: 40px;
-  background: #111;
-  border: var(--border-weight) solid white;
-  border-radius: 0px; /* Sharp corners for a tougher look */
-  text-align: center;
-}
-
-/* 3. Centered, Bordered Buttons */
-.buttons {
-  display: flex;
-  flex-direction: column; /* Stacked for central focus */
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-}
-
-button, .submit-btn {
-  width: 100%;
-  max-width: 300px;
-  background: transparent;
-  color: white;
-  padding: 18px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  cursor: pointer;
-  border: var(--border-weight) solid white; /* Highly visible border */
-  transition: all 0.2s ease;
-}
-
-/* 4. Team-Specific Clashing Colors */
-button.alpha-btn {
-  border-color: var(--team-alpha-gold);
-  color: var(--team-alpha-gold);
-}
-
-button.alpha-btn:hover {
-  background: var(--team-alpha-gold);
-  color: black;
-}
-
-button.que-btn {
-  border-color: var(--team-que-purple);
-  color: var(--team-que-purple);
-}
-
-button.que-btn:hover {
-  background: var(--team-que-purple);
-  color: white;
-}
-
-/* 5. The Versus Vote Grid */
-.vote-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* Stacked to keep things centered */
-  gap: 30px;
+  gap: 15px;
   margin-top: 20px;
 }
 
-.bar {
-  width: 100%;
-  height: 40px;
-  background: #222;
-  border: 2px solid #444;
+a, button {
   position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 320px;
+  padding: 16px 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  background: #222;
+  border: 1px solid var(--border-glow);
+  transform: skew(-15deg); /* The "Game Menu" angle */
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
   overflow: hidden;
 }
 
-#alphaBar { background: var(--team-alpha-gold); }
-#queBar { background: var(--team-que-purple); }
+/* Inner span to un-skew text back to normal */
+button span, a span {
+  display: block;
+  transform: skew(15deg);
+}
 
-/* Navigation centered */
-nav {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  border-bottom: 1px solid #333;
+/* Metallic Gradients for Buttons */
+.register-btn {
+  background: linear-gradient(to right, #2a0a4d, var(--que-purple));
+  border-left: 5px solid var(--que-purple-bright);
+}
+
+.ticket-btn {
+  background: linear-gradient(to right, #5c4a00, var(--alpha-gold));
+  border-left: 5px solid var(--alpha-gold-bright);
+}
+
+.vote-btn {
+  background: linear-gradient(to right, #333, #555);
+  border-left: 5px solid #fff;
+}
+
+/* Hover Effects */
+a:hover, button:hover {
+  filter: brightness(1.3);
+  transform: skew(-15deg) scale(1.05);
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+
+/* 4. Live Vote Bars */
+.vote-grid {
+  margin-top: 40px;
+  display: grid;
+  gap: 15px;
+}
+
+.bar-container {
+  background: #111;
+  height: 12px;
+  border-radius: 0; /* Sharp for game feel */
+  border: 1px solid #333;
+  overflow: hidden;
+  position: relative;
+}
+
+#alphaBar { 
+  background: linear-gradient(to right, var(--alpha-gold), var(--alpha-gold-bright));
+  box-shadow: 0 0 15px var(--alpha-gold);
+}
+
+#queBar { 
+  background: linear-gradient(to right, var(--que-purple), var(--que-purple-bright));
+  box-shadow: 0 0 15px var(--que-purple);
+}
+
+@media (max-width: 600px) {
+  .hero { background: linear-gradient(180deg, var(--que-purple) 49.8%, #fff 50%, var(--alpha-gold) 50.2%); }
+  h1 { font-size: 2rem; }
 }
