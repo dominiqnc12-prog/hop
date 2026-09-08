@@ -3,33 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Voting</title>
+  <meta
+    name="description"
+    content="Cast your live audience vote for Hop Like a Que vs. Stroll Like an Alpha."
+  />
+  <title>Live Voting | Hop vs Stroll</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <nav><a href="index.html">← Home</a></nav>
+  <nav>
+    <a href="index.html">← Home</a>
+  </nav>
 
-  <section class="card">
-    <h1>Live Audience Vote</h1>
-    <p>Choose who won the crowd.</p>
+  <main>
+    <section class="card">
+      <h1>Live Audience Vote</h1>
 
-    <div class="vote-grid">
-      <button onclick="vote('alpha')" class="alpha">Vote Team Alpha</button>
-      <button onclick="vote('que')" class="que">Vote Team Que</button>
-    </div>
+      <p>
+        Choose who won the crowd.
+      </p>
 
-    <h2>Results</h2>
-    <p>Team Alpha: <span id="alphaVotes">0</span></p>
-    <p>Team Que: <span id="queVotes">0</span></p>
+      <p class="note">
+        Voting is limited to one response per person through our official
+        Google Form.
+      </p>
 
-    <div class="bar">
-      <div id="alphaBar"></div>
-      <div id="queBar"></div>
-    </div>
+      <div class="buttons">
+        <a
+          class="vote-btn"
+          href="YOUR_GOOGLE_FORM_LINK"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span>Cast Your Vote</span>
+        </a>
+      </div>
 
-    <p id="message"></p>
-  </section>
-
-  <script src="script.js"></script>
+      <p class="note">
+        You may be asked to sign in with a Google account to help prevent
+        duplicate votes.
+      </p>
+    </section>
+  </main>
 </body>
 </html>
+```
