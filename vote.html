@@ -1,50 +1,863 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <meta
     name="description"
-    content="Cast your live audience vote for Hop Like a Que vs. Stroll Like an Alpha."
+    content="Live audience voting for Hop Like a Que vs. Stroll Like an Alpha."
   />
+
   <title>Live Voting | Hop vs Stroll</title>
+
   <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* =========================
+       Vote Page Only
+    ========================= */
+
+    .vote-page {
+      min-height: 100vh;
+      padding: 30px 20px 60px;
+    }
+
+    .vote-nav {
+      width: min(92%, 1000px);
+      margin: 0 auto 30px;
+    }
+
+    .vote-nav a {
+      width: auto;
+      min-width: 0;
+      min-height: auto;
+      padding: 10px 18px;
+      font-size: 0.85rem;
+    }
+
+    .live-card {
+      width: min(92%, 1000px);
+      margin: 0 auto;
+    }
+
+    .live-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 7px 14px;
+      margin-bottom: 16px;
+
+      border: 1px solid rgba(255, 80, 80, 0.3);
+      border-radius: 999px;
+
+      color: #ff7676;
+      background: rgba(255, 70, 70, 0.08);
+
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4d4d;
+      box-shadow: 0 0 12px #ff4d4d;
+
+      animation: livePulse 1.5s infinite;
+    }
+
+    @keyframes livePulse {
+      0%,
+      100% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    .live-title {
+      margin-bottom: 10px;
+    }
+
+    .leader-banner {
+      margin-bottom: 30px;
+      padding: 18px 20px;
+
+      text-align: center;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(253, 185, 39, 0.05),
+          rgba(253, 185, 39, 0.14),
+          rgba(123, 44, 191, 0.12),
+          rgba(123, 44, 191, 0.05)
+        );
+
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+    }
+
+    .leader-label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    #leaderName {
+      display: block;
+      margin-top: 5px;
+
+      color: #fff;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 900;
+    }
+
+    .matchup {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .team-card {
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+
+      background: rgba(255, 255, 255, 0.035);
+      border-radius: 20px;
+    }
+
+    .alpha-card {
+      border: 1px solid rgba(253, 185, 39, 0.3);
+      box-shadow: 0 18px 50px rgba(179, 143, 0, 0.09);
+    }
+
+    .que-card {
+      border: 1px solid rgba(123, 44, 191, 0.35);
+      box-shadow: 0 18px 50px rgba(123, 44, 191, 0.1);
+    }
+
+    .team-label {
+      margin-bottom: 5px;
+
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .team-name {
+      margin: 0;
+      font-size: clamp(1.7rem, 5vw, 2.7rem);
+      font-weight: 900;
+    }
+
+    .alpha-card .team-name {
+      color: var(--alpha-gold-bright);
+    }
+
+    .que-card .team-name {
+      color: var(--que-purple-soft);
+    }
+
+    .vote-number {
+      margin-top: 22px;
+
+      color: #fff;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .vote-count-label {
+      margin-top: 5px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .vote-progress {
+      height: 12px;
+      margin-top: 22px;
+
+      overflow: hidden;
+
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+    }
+
+    .vote-progress-fill {
+      height: 100%;
+      width: 0;
+
+      border-radius: inherit;
+
+      transition: width 0.7s ease;
+    }
+
+    #alphaBar {
+      background:
+        linear-gradient(
+          90deg,
+          var(--alpha-gold),
+          var(--alpha-gold-bright)
+        );
+
+      box-shadow: 0 0 18px rgba(253, 185, 39, 0.4);
+    }
+
+    #queBar {
+      background:
+        linear-gradient(
+          90deg,
+          var(--que-purple),
+          var(--que-purple-bright)
+        );
+
+      box-shadow: 0 0 18px rgba(123, 44, 191, 0.45);
+    }
+
+    .percent {
+      margin-top: 10px;
+      color: var(--text-secondary);
+      font-weight: 800;
+    }
+
+    .total-box {
+      margin-bottom: 26px;
+      text-align: center;
+    }
+
+    .total-box span {
+      display: block;
+    }
+
+    #totalVotes {
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .vote-actions {
+      padding-top: 28px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: center;
+    }
+
+    .vote-actions h2 {
+      margin-bottom: 5px;
+    }
+
+    .vote-actions p {
+      margin-top: 0;
+    }
+
+    .sync-status {
+      margin-top: 24px;
+      text-align: center;
+
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .sync-success {
+      color: #79d89a;
+    }
+
+    .sync-error {
+      color: #ff7676;
+    }
+
+    @media (max-width: 700px) {
+      .matchup {
+        grid-template-columns: 1fr;
+      }
+
+      .team-card {
+        padding: 22px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <nav>
-    <a href="index.html">← Home</a>
-  </nav>
+  <div class="vote-page">
 
-  <main>
-    <section class="card">
-      <h1>Live Audience Vote</h1>
+    <nav class="vote-nav">
+      <a href="index.html">
+        <span>← Home</span>
+      </a>
+    </nav>
 
-      <p>
-        Choose who won the crowd.
-      </p>
+    <main class="card live-card">
 
-      <p class="note">
-        Voting is limited to one response per person through our official
-        Google Form.
-      </p>
+      <header class="live-header">
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          Live Audience Poll
+        </div>
 
-      <div class="buttons">
-        <a
-          class="vote-btn"
-          href="YOUR_GOOGLE_FORM_LINK"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span>Cast Your Vote</span>
-        </a>
+        <h1 class="live-title">Live Audience Vote</h1>
+
+        <p>
+          Hop Like a Que vs. Stroll Like an Alpha
+        </p>
+      </header>
+
+      <!-- Current Leader -->
+      <section class="leader-banner">
+        <span class="leader-label">
+          Current Leader
+        </span>
+
+        <span id="leaderName">
+          Awaiting Votes
+        </span>
+      </section>
+
+      <!-- Alpha vs Que -->
+      <section class="matchup">
+
+        <!-- TEAM ALPHA -->
+        <article class="team-card alpha-card">
+          <p class="team-label">
+            Team Alpha
+          </p>
+
+          <h2 class="team-name">
+            ALPHA
+          </h2>
+
+          <div
+            id="alphaPercent"
+            class="vote-number"
+          >
+            0%
+          </div>
+
+          <div
+            id="alphaVotes"
+            class="vote-count-label"
+          >
+            0 votes
+          </div>
+
+          <div class="vote-progress">
+            <div
+              id="alphaBar"
+              class="vote-progress-fill"
+            ></div>
+          </div>
+
+          <div
+            id="alphaPercentSmall"
+            class="percent"
+          >
+            0% of audience vote
+          </div>
+        </article>
+
+        <!-- TEAM QUE -->
+        <article class="team-card que-card">
+          <p class="team-label">
+            Team Que
+          </p>
+
+          <h2 class="team-name">
+            QUE
+          </h2>
+
+          <div
+            id="quePercent"
+            class="vote-number"
+          >
+            0%
+          </div>
+
+          <div
+            id="queVotes"
+            class="vote-count-label"
+          >
+            0 votes
+          </div>
+
+          <div class="vote-progress">
+            <div
+              id="queBar"
+              class="vote-progress-fill"
+            ></div>
+          </div>
+
+          <div
+            id="quePercentSmall"
+            class="percent"
+          >
+            0% of audience vote
+          </div>
+        </article>
+
+      </section>
+
+      <!-- Total Votes -->
+      <div class="total-box">
+        <span class="team-label">
+          Total Votes Cast
+        </span>
+
+        <span id="totalVotes">
+          0
+        </span>
       </div>
 
-      <p class="note">
-        You may be asked to sign in with a Google account to help prevent
-        duplicate votes.
-      </p>
-    </section>
-  </main>
+      <!-- Voting Button -->
+      <section class="vote-actions">
+        <h2>Make Your Choice</h2>
+
+        <p>
+          Each attendee may submit one audience vote.
+        </p>
+
+        <div class="buttons">
+          <a
+            id="voteFormButton"
+            class="vote-btn"
+            href="YOUR_GOOGLE_FORM_LINK"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Cast Your Vote</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Sync Status -->
+      <div
+        id="syncStatus"
+        class="sync-status"
+        aria-live="polite"
+      >
+        Connecting to live results...
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    /*
+     * =======================================
+     * CONFIGURATION
+     * =======================================
+     *
+     * Replace these two values before publishing.
+     */
+
+    const GOOGLE_FORM_URL =
+      "YOUR_GOOGLE_FORM_LINK";
+
+    const LIVE_RESULTS_CSV_URL =
+      "YOUR_PUBLISHED_GOOGLE_SHEET_CSV_LINK";
+
+    const REFRESH_INTERVAL = 3000;
+
+
+    /*
+     * =======================================
+     * PAGE SETUP
+     * =======================================
+     */
+
+    const voteButton =
+      document.getElementById("voteFormButton");
+
+    voteButton.href = GOOGLE_FORM_URL;
+
+
+    /*
+     * =======================================
+     * FETCH LIVE RESULTS
+     * =======================================
+     */
+
+    async function loadLiveResults() {
+      const syncStatus =
+        document.getElementById("syncStatus");
+
+      if (
+        LIVE_RESULTS_CSV_URL.includes(
+          "YOUR_PUBLISHED"
+        )
+      ) {
+        syncStatus.textContent =
+          "Live results are not connected yet.";
+
+        syncStatus.className =
+          "sync-status sync-error";
+
+        return;
+      }
+
+      try {
+        syncStatus.textContent =
+          "Updating live results...";
+
+        syncStatus.className =
+          "sync-status";
+
+        /*
+         * Add a timestamp to avoid cached results.
+         */
+
+        const separator =
+          LIVE_RESULTS_CSV_URL.includes("?")
+            ? "&"
+            : "?";
+
+        const url =
+          LIVE_RESULTS_CSV_URL +
+          separator +
+          "t=" +
+          Date.now();
+
+        const response =
+          await fetch(url, {
+            cache: "no-store"
+          });
+
+        if (!response.ok) {
+          throw new Error(
+            "Unable to load voting data."
+          );
+        }
+
+        const csv =
+          await response.text();
+
+        updateResults(csv);
+
+        syncStatus.textContent =
+          "Live results updated";
+
+        syncStatus.className =
+          "sync-status sync-success";
+      }
+
+      catch (error) {
+        console.error(
+          "Live vote error:",
+          error
+        );
+
+        syncStatus.textContent =
+          "Unable to update live results.";
+
+        syncStatus.className =
+          "sync-status sync-error";
+      }
+    }
+
+
+    /*
+     * Expected CSV:
+     *
+     * Team,Votes
+     * Team Alpha,15
+     * Team Que,12
+     */
+
+    function updateResults(csvText) {
+      const lines =
+        csvText
+          .trim()
+          .split(/\r?\n/);
+
+      if (lines.length < 3) {
+        throw new Error(
+          "Unexpected leaderboard format."
+        );
+      }
+
+      let alphaVotes = 0;
+      let queVotes = 0;
+
+      for (
+        let i = 1;
+        i < lines.length;
+        i++
+      ) {
+        const cells =
+          parseCSVRow(lines[i]);
+
+        if (cells.length < 2) {
+          continue;
+        }
+
+        const team =
+          cells[0]
+            .trim()
+            .toLowerCase();
+
+        const votes =
+          Number(cells[1]) || 0;
+
+        if (
+          team.includes("alpha")
+        ) {
+          alphaVotes = votes;
+        }
+
+        if (
+          team.includes("que")
+        ) {
+          queVotes = votes;
+        }
+      }
+
+      renderResults(
+        alphaVotes,
+        queVotes
+      );
+    }
+
+
+    /*
+     * Small CSV parser so quoted cells
+     * don't break the page.
+     */
+
+    function parseCSVRow(row) {
+      const cells = [];
+
+      let current = "";
+      let insideQuotes = false;
+
+      for (
+        let i = 0;
+        i < row.length;
+        i++
+      ) {
+        const character =
+          row[i];
+
+        const next =
+          row[i + 1];
+
+        if (
+          character === '"' &&
+          insideQuotes &&
+          next === '"'
+        ) {
+          current += '"';
+          i++;
+        }
+
+        else if (
+          character === '"'
+        ) {
+          insideQuotes =
+            !insideQuotes;
+        }
+
+        else if (
+          character === "," &&
+          !insideQuotes
+        ) {
+          cells.push(current);
+          current = "";
+        }
+
+        else {
+          current += character;
+        }
+      }
+
+      cells.push(current);
+
+      return cells;
+    }
+
+
+    /*
+     * =======================================
+     * UPDATE SCREEN
+     * =======================================
+     */
+
+    function renderResults(
+      alphaVotes,
+      queVotes
+    ) {
+      const total =
+        alphaVotes + queVotes;
+
+      const alphaPercent =
+        total > 0
+          ? (alphaVotes / total) * 100
+          : 0;
+
+      const quePercent =
+        total > 0
+          ? (queVotes / total) * 100
+          : 0;
+
+
+      document.getElementById(
+        "alphaVotes"
+      ).textContent =
+        `${alphaVotes} ${
+          alphaVotes === 1
+            ? "vote"
+            : "votes"
+        }`;
+
+
+      document.getElementById(
+        "queVotes"
+      ).textContent =
+        `${queVotes} ${
+          queVotes === 1
+            ? "vote"
+            : "votes"
+        }`;
+
+
+      document.getElementById(
+        "totalVotes"
+      ).textContent =
+        total;
+
+
+      document.getElementById(
+        "alphaPercent"
+      ).textContent =
+        `${Math.round(alphaPercent)}%`;
+
+
+      document.getElementById(
+        "quePercent"
+      ).textContent =
+        `${Math.round(quePercent)}%`;
+
+
+      document.getElementById(
+        "alphaPercentSmall"
+      ).textContent =
+        `${Math.round(alphaPercent)}% of audience vote`;
+
+
+      document.getElementById(
+        "quePercentSmall"
+      ).textContent =
+        `${Math.round(quePercent)}% of audience vote`;
+
+
+      document.getElementById(
+        "alphaBar"
+      ).style.width =
+        `${alphaPercent}%`;
+
+
+      document.getElementById(
+        "queBar"
+      ).style.width =
+        `${quePercent}%`;
+
+
+      updateLeader(
+        alphaVotes,
+        queVotes,
+        total
+      );
+    }
+
+
+    /*
+     * =======================================
+     * LEADER
+     * =======================================
+     */
+
+    function updateLeader(
+      alphaVotes,
+      queVotes,
+      total
+    ) {
+      const leader =
+        document.getElementById(
+          "leaderName"
+        );
+
+      if (total === 0) {
+        leader.textContent =
+          "Awaiting Votes";
+
+        leader.style.color =
+          "#ffffff";
+
+        return;
+      }
+
+
+      if (
+        alphaVotes > queVotes
+      ) {
+        leader.textContent =
+          "TEAM ALPHA";
+
+        leader.style.color =
+          "#fdb927";
+      }
+
+      else if (
+        queVotes > alphaVotes
+      ) {
+        leader.textContent =
+          "TEAM QUE";
+
+        leader.style.color =
+          "#9d4edd";
+      }
+
+      else {
+        leader.textContent =
+          "TIED";
+
+        leader.style.color =
+          "#ffffff";
+      }
+    }
+
+
+    /*
+     * =======================================
+     * START LIVE POLLING
+     * =======================================
+     */
+
+    loadLiveResults();
+
+    setInterval(
+      loadLiveResults,
+      REFRESH_INTERVAL
+    );
+  </script>
 </body>
 </html>
+```
