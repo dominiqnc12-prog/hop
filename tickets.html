@@ -1,26 +1,59 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tickets</title>
+  <meta
+    name="description"
+    content="Purchase tickets for Hop Like a Que vs. Stroll Like an Alpha."
+  />
+  <title>Tickets | Hop vs Stroll</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <nav><a href="index.html">← Home</a></nav>
+  <nav>
+    <a href="index.html">← Home</a>
+  </nav>
 
-  <section class="card">
-    <h1>Tickets</h1>
-    <p><strong>Presale:</strong> $5</p>
-    <p><strong>Door:</strong> $8–10</p>
+  <main>
+    <section class="card">
+      <h1>Tickets</h1>
 
-    <div class="buttons">
-      <a href="https://cash.app/$YOURCASHTAG" target="_blank">Cash App</a>
-      <a href="https://venmo.com/YOURVENMO" target="_blank">Venmo</a>
-      <a href="#" target="_blank">Google Form Ticket Confirmation</a>
-    </div>
+      <p><strong>Presale:</strong> $5</p>
+      <p><strong>Door:</strong> $8–10</p>
 
-    <p class="note">After payment, attendees should complete the confirmation form or show payment receipt at check-in.</p>
-  </section>
+      <p>
+        Purchase your ticket using either Cash App or Eventbrite.
+      </p>
+
+      <div class="buttons">
+        <a
+          class="ticket-btn"
+          href="https://cash.app/$YOURCASHTAG"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span>Pay with Cash App</span>
+        </a>
+
+        <a
+          class="register-btn"
+          href="YOUR_EVENTBRITE_LINK"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span>Buy on Eventbrite</span>
+        </a>
+      </div>
+
+      <p class="note">
+        If paying through Cash App, keep your payment confirmation available at check-in.
+        Eventbrite ticket holders should present their Eventbrite ticket at entry.
+      </p>
+    </section>
+  </main>
 </body>
 </html>
+```
