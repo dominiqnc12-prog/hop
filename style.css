@@ -1,150 +1,513 @@
+```css
 :root {
   --que-purple: #4a1d70;
   --que-purple-bright: #7b2cbf;
+  --que-purple-soft: #9d4edd;
+
   --alpha-gold: #b38f00;
   --alpha-gold-bright: #fdb927;
-  --metal-bg: #0d0d0d;
-  --glass: rgba(255, 255, 255, 0.03);
+  --alpha-gold-soft: #ffd166;
+
+  --bg-primary: #090909;
+  --bg-secondary: #111111;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-strong: rgba(255, 255, 255, 0.09);
+
+  --text-primary: #ffffff;
+  --text-secondary: #c9c9c9;
+  --text-muted: #8f8f8f;
+
+  --border-soft: rgba(255, 255, 255, 0.12);
   --border-glow: rgba(255, 255, 255, 0.2);
+
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.5);
+  --shadow-glow-purple: 0 0 40px rgba(123, 44, 191, 0.18);
+  --shadow-glow-gold: 0 0 40px rgba(253, 185, 39, 0.16);
+
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+/* =========================
+   Base
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--metal-bg);
-  color: #fff;
+  min-height: 100vh;
+  font-family: "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(123, 44, 191, 0.12), transparent 30%),
+    radial-gradient(circle at 80% 15%, rgba(253, 185, 39, 0.08), transparent 28%),
+    linear-gradient(180deg, #0a0a0a 0%, #080808 100%);
+  color: var(--text-primary);
   overflow-x: hidden;
+  line-height: 1.6;
 }
 
-/* 1. Dynamic Diagonal Split Background */
+/* =========================
+   Hero
+========================= */
+
 .hero {
   position: relative;
-  min-height: 60vh;
+  min-height: 72vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: 
-    linear-gradient(115deg, var(--que-purple) 49.8%, #fff 50%, var(--alpha-gold) 50.2%);
-  padding: 40px 20px;
-  box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+  padding: 100px 24px 130px;
+  isolation: isolate;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(74, 29, 112, 0.92) 0%,
+      rgba(74, 29, 112, 0.78) 44%,
+      rgba(179, 143, 0, 0.65) 100%
+    );
 }
 
-/* Title Styling with "Steel" Finish */
-h1 {
-  font-size: clamp(1.5rem, 6vw, 3.5rem);
+/* Soft depth layer */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 25% 30%, rgba(157, 78, 221, 0.26), transparent 32%),
+    radial-gradient(circle at 75% 35%, rgba(253, 185, 39, 0.2), transparent 28%);
+}
+
+/* Elegant glass/metal overlay */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(0, 0, 0, 0.14)
+    );
+  box-shadow:
+    inset 0 -100px 120px rgba(0, 0, 0, 0.35),
+    inset 0 0 120px rgba(0, 0, 0, 0.2);
+}
+
+.hero h1 {
+  max-width: 900px;
+  margin: 0 0 20px;
+  font-size: clamp(2.6rem, 7vw, 5.8rem);
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 30px;
-  color: #eee;
-  text-shadow: 
-    0 1px 0 #ccc, 
-    0 2px 0 #c5c5c5, 
-    0 3px 0 #bbb, 
-    0 4px 0 #b1b1b1, 
-    0 10px 20px rgba(0,0,0,0.5);
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #e9e9e9 45%,
+    #bfbfbf 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  text-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* 2. Glassmorphism Info Card */
-.card {
+.hero p {
   max-width: 700px;
-  margin: -60px auto 40px;
-  background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(10,10,10,0.95));
-  backdrop-filter: blur(15px);
-  border: 1px solid var(--border-glow);
-  padding: 30px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
+/* =========================
+   Main Glass Card
+========================= */
+
+.card {
+  width: min(92%, 820px);
+  margin: -80px auto 50px;
+  padding: 38px;
   position: relative;
   z-index: 10;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.085),
+      rgba(255, 255, 255, 0.025)
+    );
+
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+
+  box-shadow:
+    var(--shadow-lg),
+    0 0 0 1px rgba(255, 255, 255, 0.02),
+    var(--shadow-glow-purple),
+    var(--shadow-glow-gold);
 }
 
-/* 3. The Gaming "Skew" Buttons */
+/* subtle top highlight */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  width: 84%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+}
+
+.card h2,
+.card h3 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+.card p {
+  color: var(--text-secondary);
+}
+
+/* =========================
+   Buttons
+========================= */
+
 .buttons {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 28px;
 }
 
-a, button {
+a,
+button {
+  appearance: none;
+  border: 0;
+  outline: none;
+
   position: relative;
-  display: inline-block;
-  width: 100%;
-  max-width: 320px;
-  padding: 16px 0;
-  font-size: 1.1rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  min-width: 190px;
+  min-height: 54px;
+
+  padding: 15px 24px;
+
+  font-size: 0.95rem;
   font-weight: 800;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: white;
+
+  color: #fff;
   text-decoration: none;
-  text-align: center;
-  background: #222;
-  border: 1px solid var(--border-glow);
-  transform: skew(-15deg); /* The "Game Menu" angle */
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+
   cursor: pointer;
   overflow: hidden;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    filter 0.25s ease;
 }
 
-/* Inner span to un-skew text back to normal */
-button span, a span {
-  display: block;
-  transform: skew(15deg);
+/* soft light sweep */
+a::before,
+button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 80%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.55s ease;
 }
 
-/* Metallic Gradients for Buttons */
-.register-btn {
-  background: linear-gradient(to right, #2a0a4d, var(--que-purple));
-  border-left: 5px solid var(--que-purple-bright);
+a:hover::before,
+button:hover::before {
+  transform: translateX(130%);
 }
 
-.ticket-btn {
-  background: linear-gradient(to right, #5c4a00, var(--alpha-gold));
-  border-left: 5px solid var(--alpha-gold-bright);
+a:hover,
+button:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.08);
 }
 
-.vote-btn {
-  background: linear-gradient(to right, #333, #555);
-  border-left: 5px solid #fff;
+a:active,
+button:active {
+  transform: translateY(-1px) scale(0.99);
 }
 
-/* Hover Effects */
-a:hover, button:hover {
-  filter: brightness(1.3);
-  transform: skew(-15deg) scale(1.05);
-  box-shadow: 0 0 20px rgba(255,255,255,0.1);
-}
-
-/* 4. Live Vote Bars */
-.vote-grid {
-  margin-top: 40px;
-  display: grid;
-  gap: 15px;
-}
-
-.bar-container {
-  background: #111;
-  height: 12px;
-  border-radius: 0; /* Sharp for game feel */
-  border: 1px solid #333;
-  overflow: hidden;
+button span,
+a span {
   position: relative;
+  z-index: 1;
 }
 
-#alphaBar { 
-  background: linear-gradient(to right, var(--alpha-gold), var(--alpha-gold-bright));
-  box-shadow: 0 0 15px var(--alpha-gold);
+/* Purple action */
+.register-btn {
+  background:
+    linear-gradient(
+      135deg,
+      #35114f,
+      var(--que-purple),
+      var(--que-purple-bright)
+    );
+
+  box-shadow:
+    0 10px 30px rgba(74, 29, 112, 0.3);
 }
 
-#queBar { 
-  background: linear-gradient(to right, var(--que-purple), var(--que-purple-bright));
-  box-shadow: 0 0 15px var(--que-purple);
+.register-btn:hover {
+  border-color: rgba(157, 78, 221, 0.55);
+  box-shadow:
+    0 14px 40px rgba(123, 44, 191, 0.38);
 }
 
-@media (max-width: 600px) {
-  .hero { background: linear-gradient(180deg, var(--que-purple) 49.8%, #fff 50%, var(--alpha-gold) 50.2%); }
-  h1 { font-size: 2rem; }
+/* Gold action */
+.ticket-btn {
+  color: #141414;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8e7200,
+      var(--alpha-gold),
+      var(--alpha-gold-bright)
+    );
+
+  box-shadow:
+    0 10px 30px rgba(179, 143, 0, 0.25);
 }
+
+.ticket-btn:hover {
+  border-color: rgba(255, 209, 102, 0.65);
+  box-shadow:
+    0 14px 40px rgba(253, 185, 39, 0.32);
+}
+
+/* Neutral action */
+.vote-btn {
+  background:
+    linear-gradient(
+      135deg,
+      #1e1e1e,
+      #2c2c2c
+    );
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.vote-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* =========================
+   Vote Section
+========================= */
+
+.vote-grid {
+  margin-top: 42px;
+  display: grid;
+  gap: 22px;
+}
+
+.vote-item {
+  display: grid;
+  gap: 10px;
+}
+
+.vote-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Progress track */
+.bar-container {
+  position: relative;
+  height: 12px;
+  overflow: hidden;
+
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+
+  box-shadow:
+    inset 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+/* Purple bar */
+#queBar {
+  height: 100%;
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--que-purple),
+      var(--que-purple-bright),
+      var(--que-purple-soft)
+    );
+
+  box-shadow:
+    0 0 18px rgba(123, 44, 191, 0.4);
+
+  transition: width 0.5s ease;
+}
+
+/* Gold bar */
+#alphaBar {
+  height: 100%;
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--alpha-gold),
+      var(--alpha-gold-bright),
+      var(--alpha-gold-soft)
+    );
+
+  box-shadow:
+    0 0 18px rgba(253, 185, 39, 0.38);
+
+  transition: width 0.5s ease;
+}
+
+/* =========================
+   Optional Content Sections
+========================= */
+
+section {
+  width: min(92%, 1100px);
+  margin: 0 auto;
+}
+
+.section-title {
+  margin-bottom: 12px;
+
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.section-subtitle {
+  max-width: 650px;
+  color: var(--text-muted);
+}
+
+/* =========================
+   Accessibility
+========================= */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--alpha-gold-bright);
+  outline-offset: 4px;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 64vh;
+    padding: 80px 20px 110px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 12vw, 4rem);
+  }
+
+  .card {
+    margin-top: -60px;
+    padding: 28px 22px;
+    border-radius: 20px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  a,
+  button {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    min-height: 58vh;
+  }
+
+  .card {
+    width: calc(100% - 24px);
+    padding: 24px 18px;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+```
