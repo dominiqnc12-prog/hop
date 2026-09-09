@@ -471,7 +471,7 @@
     "https://docs.google.com/forms/d/e/1FAIpQLScvsb7iB5FXVQvkDh56_fH8FuhEyNjdRN-wXIeRhZ5Lv7RxQA/viewform";
 
   const LIVE_RESULTS_CSV_URL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvtLMFuC0d_pKxrjxWxbXTQjx-I7uJWWG_6yqPwiipU1I8cnXEio8-CW6p4FQWJStXRb6XS3gs3Bw5/pub?output=csvt";
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvtLMFuC0d_pKxrjxWxbXTQjx-I7uJWWG_6yqPwiipU1I8cnXEio8-CW6p4FQWJStXRb6XS3gs3Bw5/pub?output=csv";
 
   const CONTROL_API_URL =
     "https://script.google.com/macros/s/AKfycbyYicE7emly5EnrJzWaYIEL2A--CyO3lnQBX6h3Ax4s52wzLYTvyHmy8dr-Kr59sAAZ/exec";
@@ -498,151 +498,108 @@
     document.getElementById("syncStatus");
 
 
-  /*
-   * Voting starts CLOSED until the server confirms
-   * that voting is open.
-   */
+/*
+ * =====================================================
+ * VOTING LOCK / STATUS
+ * =====================================================
+ *
+ * Voting starts LOCKED.
+ * It only becomes available after the backend
+ * explicitly confirms votingOpen === true.
+ */
 
-  let votingIsOpen = false;
-
-
-  /*
-   * =====================================================
-   * INITIAL PAGE SETUP
-   * =====================================================
-   */
-
-  voteButton.href = GOOGLE_FORM_URL;
+let votingIsOpen = false;
 
 
-  /*
-   * =====================================================
-   * VOTING LOCK
-   * =====================================================
-   *
-   * This prevents the Google Form from opening when
-   * votingOpen is false.
-   */
+/*
+ * LOCK IMMEDIATELY ON PAGE LOAD
+ */
 
-  voteButton.addEventListener(
-    "click",
-    function(event) {
+voteButton.style.pointerEvents = "none";
+voteButton.style.opacity = "0.45";
+voteButton.style.cursor = "not-allowed";
 
-      if (!votingIsOpen) {
-        event.preventDefault();
+voteButton.setAttribute(
+  "aria-disabled",
+  "true"
+);
 
-        votingStatusMessage.textContent =
-          "Voting is currently closed.";
-      }
-
-    }
-  );
+votingStatusMessage.textContent =
+  "Checking voting status...";
 
 
-  /*
-   * =====================================================
-   * CHECK VOTING STATUS
-   * =====================================================
-   */
+/*
+ * =====================================================
+ * CHECK VOTING STATUS
+ * =====================================================
+ */
 
-  async function checkVotingStatus() {
+async function checkVotingStatus() {
 
-    try {
+  try {
 
-      const response =
-        await fetch(
-          CONTROL_API_URL +
-          "?action=status&t=" +
-          Date.now(),
-          {
-            cache: "no-store"
-          }
-        );
-
-
-      if (!response.ok) {
-        throw new Error(
-          "Unable to retrieve voting status."
-        );
-      }
-
-
-      const data =
-        await response.json();
-
-
-      votingIsOpen =
-        data.votingOpen === true;
-
-
-      /*
-       * VOTING OPEN
-       */
-      if (votingIsOpen) {
-
-        voteButton.style.opacity =
-          "1";
-
-        voteButton.style.cursor =
-          "pointer";
-
-        voteButton.setAttribute(
-          "aria-disabled",
-          "false"
-        );
-
-        votingStatusMessage.textContent =
-          "Voting is open.";
-
-      }
-
-
-      /*
-       * VOTING CLOSED
-       */
-      else {
-
-        /*
-         * Do NOT use pointer-events:none here.
-         *
-         * The click event needs to fire so
-         * preventDefault() can stop the link.
-         */
-
-        voteButton.style.opacity =
-          "0.45";
-
-        voteButton.style.cursor =
-          "not-allowed";
-
-        voteButton.setAttribute(
-          "aria-disabled",
-          "true"
-        );
-
-        votingStatusMessage.textContent =
-          "Voting is currently closed.";
-
-      }
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Voting status error:",
-        error
+    const response =
+      await fetch(
+        CONTROL_API_URL +
+        "?action=status&t=" +
+        Date.now(),
+        {
+          cache: "no-store"
+        }
       );
 
 
-      /*
-       * Fail closed.
-       *
-       * If the control server cannot be reached,
-       * do not allow voting.
-       */
+    if (!response.ok) {
 
-      votingIsOpen = false;
+      throw new Error(
+        "Unable to retrieve voting status."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    votingIsOpen =
+      data.votingOpen === true;
+
+
+    /*
+     * VOTING OPEN
+     */
+
+    if (votingIsOpen) {
+
+      voteButton.style.pointerEvents =
+        "auto";
+
+      voteButton.style.opacity =
+        "1";
+
+      voteButton.style.cursor =
+        "pointer";
+
+      voteButton.setAttribute(
+        "aria-disabled",
+        "false"
+      );
+
+      votingStatusMessage.textContent =
+        "Voting is open.";
+
+    }
+
+
+    /*
+     * VOTING CLOSED
+     */
+
+    else {
+
+      voteButton.style.pointerEvents =
+        "none";
 
       voteButton.style.opacity =
         "0.45";
@@ -656,12 +613,46 @@
       );
 
       votingStatusMessage.textContent =
-        "Voting is currently unavailable.";
+        "Voting is currently closed.";
 
     }
 
   }
 
+  catch (error) {
+
+    console.error(
+      "Voting status error:",
+      error
+    );
+
+
+    /*
+     * FAIL CLOSED
+     */
+
+    votingIsOpen = false;
+
+    voteButton.style.pointerEvents =
+      "none";
+
+    voteButton.style.opacity =
+      "0.45";
+
+    voteButton.style.cursor =
+      "not-allowed";
+
+    voteButton.setAttribute(
+      "aria-disabled",
+      "true"
+    );
+
+    votingStatusMessage.textContent =
+      "Voting status could not be verified.";
+
+  }
+
+}
 
   /*
    * =====================================================
