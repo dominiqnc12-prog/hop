@@ -444,10 +444,10 @@
           >
             <span>Cast Your Vote</span>
           </a>
-          <p id="votingStatusMessage">
+        </div>
+         <p id="votingStatusMessage">
             Checking voting status...
           </p>
-        </div>
       </section>
 
       <!-- Sync Status -->
@@ -460,480 +460,662 @@
     </main>
   </div>
 
-  <script>
-    /*
-     * =======================================
-     * CONFIGURATION
-     * =======================================
-     *
-     * Replace these two values before publishing.
-     */
+<script>
+  /*
+   * =====================================================
+   * CONFIGURATION
+   * =====================================================
+   */
 
-    const GOOGLE_FORM_URL =
-      "https://docs.google.com/forms/d/e/1FAIpQLScvsb7iB5FXVQvkDh56_fH8FuhEyNjdRN-wXIeRhZ5Lv7RxQA/viewform";
+  const GOOGLE_FORM_URL =
+    "https://docs.google.com/forms/d/e/1FAIpQLScvsb7iB5FXVQvkDh56_fH8FuhEyNjdRN-wXIeRhZ5Lv7RxQA/viewform";
 
-    const LIVE_RESULTS_CSV_URL =
-      "https://docs.google.com/spreadsheets/d/1nlVrln5F2jfoYDG30pIV3yxKrZPxrPasfDu8-4PetsA/edit";
+  const LIVE_RESULTS_CSV_URL =
+    "https://docs.google.com/spreadsheets/d/1nlVrln5F2jfoYDG30pIV3yxKrZPxrPasfDu8-4PetsA/edit";
 
-    const REFRESH_INTERVAL = 3000;
+  const CONTROL_API_URL =
+    "https://script.google.com/macros/s/AKfycbyYicE7emly5EnrJzWaYIEL2A--CyO3lnQBX6h3Ax4s52wzLYTvyHmy8dr-Kr59sAAZ/exec";
 
-
-    /*
-     * =======================================
-     * PAGE SETUP
-     * =======================================
-     */
-
-    const voteButton =
-      document.getElementById("voteFormButton");
-
-    voteButton.href = GOOGLE_FORM_URL;
+  const RESULTS_REFRESH_INTERVAL = 3000;
+  const STATUS_REFRESH_INTERVAL = 5000;
 
 
-    /*
-     * =======================================
-     * FETCH LIVE RESULTS
-     * =======================================
-     */
+  /*
+   * =====================================================
+   * DOM ELEMENTS
+   * =====================================================
+   *
+   * Define these once.
+   */
 
-    async function loadLiveResults() {
-      const syncStatus =
-        document.getElementById("syncStatus");
+  const voteButton =
+    document.getElementById("voteFormButton");
 
-      if (
-        LIVE_RESULTS_CSV_URL.includes(
-          "YOUR_PUBLISHED"
-        )
-      ) {
-        syncStatus.textContent =
-          "Live results are not connected yet.";
+  const votingStatusMessage =
+    document.getElementById("votingStatusMessage");
 
-        syncStatus.className =
-          "sync-status sync-error";
+  const syncStatus =
+    document.getElementById("syncStatus");
 
-        return;
+
+  /*
+   * Voting starts CLOSED until the server confirms
+   * that voting is open.
+   */
+
+  let votingIsOpen = false;
+
+
+  /*
+   * =====================================================
+   * INITIAL PAGE SETUP
+   * =====================================================
+   */
+
+  voteButton.href = GOOGLE_FORM_URL;
+
+
+  /*
+   * =====================================================
+   * VOTING LOCK
+   * =====================================================
+   *
+   * This prevents the Google Form from opening when
+   * votingOpen is false.
+   */
+
+  voteButton.addEventListener(
+    "click",
+    function(event) {
+
+      if (!votingIsOpen) {
+        event.preventDefault();
+
+        votingStatusMessage.textContent =
+          "Voting is currently closed.";
       }
 
-      try {
-        syncStatus.textContent =
-          "Updating live results...";
+    }
+  );
 
-        syncStatus.className =
-          "sync-status";
+
+  /*
+   * =====================================================
+   * CHECK VOTING STATUS
+   * =====================================================
+   */
+
+  async function checkVotingStatus() {
+
+    try {
+
+      const response =
+        await fetch(
+          CONTROL_API_URL +
+          "?action=status&t=" +
+          Date.now(),
+          {
+            cache: "no-store"
+          }
+        );
+
+
+      if (!response.ok) {
+        throw new Error(
+          "Unable to retrieve voting status."
+        );
+      }
+
+
+      const data =
+        await response.json();
+
+
+      votingIsOpen =
+        data.votingOpen === true;
+
+
+      /*
+       * VOTING OPEN
+       */
+      if (votingIsOpen) {
+
+        voteButton.style.opacity =
+          "1";
+
+        voteButton.style.cursor =
+          "pointer";
+
+        voteButton.setAttribute(
+          "aria-disabled",
+          "false"
+        );
+
+        votingStatusMessage.textContent =
+          "Voting is open.";
+
+      }
+
+
+      /*
+       * VOTING CLOSED
+       */
+      else {
 
         /*
-         * Add a timestamp to avoid cached results.
+         * Do NOT use pointer-events:none here.
+         *
+         * The click event needs to fire so
+         * preventDefault() can stop the link.
          */
 
-        const separator =
-          LIVE_RESULTS_CSV_URL.includes("?")
-            ? "&"
-            : "?";
+        voteButton.style.opacity =
+          "0.45";
 
-        const url =
-          LIVE_RESULTS_CSV_URL +
-          separator +
-          "t=" +
-          Date.now();
+        voteButton.style.cursor =
+          "not-allowed";
 
-        const response =
-          await fetch(url, {
+        voteButton.setAttribute(
+          "aria-disabled",
+          "true"
+        );
+
+        votingStatusMessage.textContent =
+          "Voting is currently closed.";
+
+      }
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Voting status error:",
+        error
+      );
+
+
+      /*
+       * Fail closed.
+       *
+       * If the control server cannot be reached,
+       * do not allow voting.
+       */
+
+      votingIsOpen = false;
+
+      voteButton.style.opacity =
+        "0.45";
+
+      voteButton.style.cursor =
+        "not-allowed";
+
+      voteButton.setAttribute(
+        "aria-disabled",
+        "true"
+      );
+
+      votingStatusMessage.textContent =
+        "Voting is currently unavailable.";
+
+    }
+
+  }
+
+
+  /*
+   * =====================================================
+   * FETCH LIVE RESULTS
+   * =====================================================
+   */
+
+  async function loadLiveResults() {
+
+    /*
+     * Until you replace the CSV placeholder,
+     * don't attempt to fetch results.
+     */
+
+    if (
+      LIVE_RESULTS_CSV_URL.includes(
+        "YOUR_PUBLISHED"
+      )
+    ) {
+
+      syncStatus.textContent =
+        "Live results are not connected yet.";
+
+      syncStatus.className =
+        "sync-status sync-error";
+
+      return;
+    }
+
+
+    try {
+
+      syncStatus.textContent =
+        "Updating live results...";
+
+      syncStatus.className =
+        "sync-status";
+
+
+      /*
+       * Prevent cached Sheet results.
+       */
+
+      const separator =
+        LIVE_RESULTS_CSV_URL.includes("?")
+          ? "&"
+          : "?";
+
+
+      const url =
+        LIVE_RESULTS_CSV_URL +
+        separator +
+        "t=" +
+        Date.now();
+
+
+      const response =
+        await fetch(
+          url,
+          {
             cache: "no-store"
-          });
-
-        if (!response.ok) {
-          throw new Error(
-            "Unable to load voting data."
-          );
-        }
-
-        const csv =
-          await response.text();
-
-        updateResults(csv);
-
-        syncStatus.textContent =
-          "Live results updated";
-
-        syncStatus.className =
-          "sync-status sync-success";
-      }
-
-      catch (error) {
-        console.error(
-          "Live vote error:",
-          error
+          }
         );
 
-        syncStatus.textContent =
-          "Unable to update live results.";
 
-        syncStatus.className =
-          "sync-status sync-error";
-      }
-    }
+      if (!response.ok) {
 
-
-    /*
-     * Expected CSV:
-     *
-     * Team,Votes
-     * Team Alpha,15
-     * Team Que,12
-     */
-
-    function updateResults(csvText) {
-      const lines =
-        csvText
-          .trim()
-          .split(/\r?\n/);
-
-      if (lines.length < 3) {
         throw new Error(
-          "Unexpected leaderboard format."
-        );
-      }
-
-      let alphaVotes = 0;
-      let queVotes = 0;
-
-      for (
-        let i = 1;
-        i < lines.length;
-        i++
-      ) {
-        const cells =
-          parseCSVRow(lines[i]);
-
-        if (cells.length < 2) {
-          continue;
-        }
-
-        const team =
-          cells[0]
-            .trim()
-            .toLowerCase();
-
-        const votes =
-          Number(cells[1]) || 0;
-
-        if (
-          team.includes("alpha")
-        ) {
-          alphaVotes = votes;
-        }
-
-        if (
-          team.includes("que")
-        ) {
-          queVotes = votes;
-        }
-      }
-
-      renderResults(
-        alphaVotes,
-        queVotes
-      );
-    }
-
-
-    /*
-     * Small CSV parser so quoted cells
-     * don't break the page.
-     */
-
-    function parseCSVRow(row) {
-      const cells = [];
-
-      let current = "";
-      let insideQuotes = false;
-
-      for (
-        let i = 0;
-        i < row.length;
-        i++
-      ) {
-        const character =
-          row[i];
-
-        const next =
-          row[i + 1];
-
-        if (
-          character === '"' &&
-          insideQuotes &&
-          next === '"'
-        ) {
-          current += '"';
-          i++;
-        }
-
-        else if (
-          character === '"'
-        ) {
-          insideQuotes =
-            !insideQuotes;
-        }
-
-        else if (
-          character === "," &&
-          !insideQuotes
-        ) {
-          cells.push(current);
-          current = "";
-        }
-
-        else {
-          current += character;
-        }
-      }
-
-      cells.push(current);
-
-      return cells;
-    }
-
-
-    /*
-     * =======================================
-     * UPDATE SCREEN
-     * =======================================
-     */
-
-    function renderResults(
-      alphaVotes,
-      queVotes
-    ) {
-      const total =
-        alphaVotes + queVotes;
-
-      const alphaPercent =
-        total > 0
-          ? (alphaVotes / total) * 100
-          : 0;
-
-      const quePercent =
-        total > 0
-          ? (queVotes / total) * 100
-          : 0;
-
-
-      document.getElementById(
-        "alphaVotes"
-      ).textContent =
-        `${alphaVotes} ${
-          alphaVotes === 1
-            ? "vote"
-            : "votes"
-        }`;
-
-
-      document.getElementById(
-        "queVotes"
-      ).textContent =
-        `${queVotes} ${
-          queVotes === 1
-            ? "vote"
-            : "votes"
-        }`;
-
-
-      document.getElementById(
-        "totalVotes"
-      ).textContent =
-        total;
-
-
-      document.getElementById(
-        "alphaPercent"
-      ).textContent =
-        `${Math.round(alphaPercent)}%`;
-
-
-      document.getElementById(
-        "quePercent"
-      ).textContent =
-        `${Math.round(quePercent)}%`;
-
-
-      document.getElementById(
-        "alphaPercentSmall"
-      ).textContent =
-        `${Math.round(alphaPercent)}% of audience vote`;
-
-
-      document.getElementById(
-        "quePercentSmall"
-      ).textContent =
-        `${Math.round(quePercent)}% of audience vote`;
-
-
-      document.getElementById(
-        "alphaBar"
-      ).style.width =
-        `${alphaPercent}%`;
-
-
-      document.getElementById(
-        "queBar"
-      ).style.width =
-        `${quePercent}%`;
-
-
-      updateLeader(
-        alphaVotes,
-        queVotes,
-        total
-      );
-    }
-
-
-    /*
-     * =======================================
-     * LEADER
-     * =======================================
-     */
-
-    function updateLeader(
-      alphaVotes,
-      queVotes,
-      total
-    ) {
-      const leader =
-        document.getElementById(
-          "leaderName"
+          "Unable to load voting data."
         );
 
-      if (total === 0) {
-        leader.textContent =
-          "Awaiting Votes";
+      }
 
-        leader.style.color =
-          "#ffffff";
 
-        return;
+      const csv =
+        await response.text();
+
+
+      updateResults(csv);
+
+
+      syncStatus.textContent =
+        "Live results updated";
+
+      syncStatus.className =
+        "sync-status sync-success";
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Live vote error:",
+        error
+      );
+
+
+      syncStatus.textContent =
+        "Unable to update live results.";
+
+      syncStatus.className =
+        "sync-status sync-error";
+
+    }
+
+  }
+
+
+  /*
+   * =====================================================
+   * PARSE LIVE RESULTS
+   * =====================================================
+   *
+   * Expected CSV:
+   *
+   * Team,Votes
+   * Team Alpha,15
+   * Team Que,12
+   */
+
+  function updateResults(csvText) {
+
+    const lines =
+      csvText
+        .trim()
+        .split(/\r?\n/);
+
+
+    if (lines.length < 3) {
+
+      throw new Error(
+        "Unexpected leaderboard format."
+      );
+
+    }
+
+
+    let alphaVotes = 0;
+    let queVotes = 0;
+
+
+    for (
+      let i = 1;
+      i < lines.length;
+      i++
+    ) {
+
+      const cells =
+        parseCSVRow(lines[i]);
+
+
+      if (cells.length < 2) {
+        continue;
+      }
+
+
+      const team =
+        cells[0]
+          .trim()
+          .toLowerCase();
+
+
+      const votes =
+        Number(cells[1]) || 0;
+
+
+      if (
+        team.includes("alpha")
+      ) {
+        alphaVotes = votes;
       }
 
 
       if (
-        alphaVotes > queVotes
+        team.includes("que")
       ) {
-        leader.textContent =
-          "TEAM ALPHA";
+        queVotes = votes;
+      }
 
-        leader.style.color =
-          "#fdb927";
+    }
+
+
+    renderResults(
+      alphaVotes,
+      queVotes
+    );
+
+  }
+
+
+  /*
+   * =====================================================
+   * CSV PARSER
+   * =====================================================
+   */
+
+  function parseCSVRow(row) {
+
+    const cells = [];
+
+    let current = "";
+    let insideQuotes = false;
+
+
+    for (
+      let i = 0;
+      i < row.length;
+      i++
+    ) {
+
+      const character =
+        row[i];
+
+      const next =
+        row[i + 1];
+
+
+      if (
+        character === '"' &&
+        insideQuotes &&
+        next === '"'
+      ) {
+
+        current += '"';
+        i++;
+
       }
 
       else if (
-        queVotes > alphaVotes
+        character === '"'
       ) {
-        leader.textContent =
-          "TEAM QUE";
 
-        leader.style.color =
-          "#9d4edd";
+        insideQuotes =
+          !insideQuotes;
+
+      }
+
+      else if (
+        character === "," &&
+        !insideQuotes
+      ) {
+
+        cells.push(current);
+        current = "";
+
       }
 
       else {
-        leader.textContent =
-          "TIED";
 
-        leader.style.color =
-          "#ffffff";
+        current += character;
+
       }
+
     }
 
 
-    /*
-     * =======================================
-     * START LIVE POLLING
-     * =======================================
-     */
+    cells.push(current);
 
-    loadLiveResults();
+    return cells;
 
-    setInterval(
-      loadLiveResults,
-      REFRESH_INTERVAL
-    );
-// status-checking code here
-  </script>
-<script>
-const CONTROL_API_URL = "https://script.google.com/macros/s/AKfycbyYicE7emly5EnrJzWaYIEL2A--CyO3lnQBX6h3Ax4s52wzLYTvyHmy8dr-Kr59sAAZ/exec";
-
-const voteButton = document.getElementById("voteFormButton");
-const votingStatusMessage = document.getElementById("votingStatusMessage");
-
-let votingIsOpen = false;
-
-// Prevent navigation whenever voting is closed.
-voteButton.addEventListener("click", function(event) {
-  if (!votingIsOpen) {
-    event.preventDefault();
-
-    votingStatusMessage.textContent =
-      "Voting is currently closed.";
   }
-});
 
-async function checkVotingStatus() {
-  try {
-    const response = await fetch(
-      CONTROL_API_URL +
-      "?action=status&t=" +
-      Date.now(),
-      {
-        cache: "no-store"
-      }
+
+  /*
+   * =====================================================
+   * RENDER RESULTS
+   * =====================================================
+   */
+
+  function renderResults(
+    alphaVotes,
+    queVotes
+  ) {
+
+    const total =
+      alphaVotes + queVotes;
+
+
+    const alphaPercent =
+      total > 0
+        ? (alphaVotes / total) * 100
+        : 0;
+
+
+    const quePercent =
+      total > 0
+        ? (queVotes / total) * 100
+        : 0;
+
+
+    document.getElementById(
+      "alphaVotes"
+    ).textContent =
+      `${alphaVotes} ${
+        alphaVotes === 1
+          ? "vote"
+          : "votes"
+      }`;
+
+
+    document.getElementById(
+      "queVotes"
+    ).textContent =
+      `${queVotes} ${
+        queVotes === 1
+          ? "vote"
+          : "votes"
+      }`;
+
+
+    document.getElementById(
+      "totalVotes"
+    ).textContent =
+      total;
+
+
+    document.getElementById(
+      "alphaPercent"
+    ).textContent =
+      `${Math.round(alphaPercent)}%`;
+
+
+    document.getElementById(
+      "quePercent"
+    ).textContent =
+      `${Math.round(quePercent)}%`;
+
+
+    document.getElementById(
+      "alphaPercentSmall"
+    ).textContent =
+      `${Math.round(alphaPercent)}% of audience vote`;
+
+
+    document.getElementById(
+      "quePercentSmall"
+    ).textContent =
+      `${Math.round(quePercent)}% of audience vote`;
+
+
+    document.getElementById(
+      "alphaBar"
+    ).style.width =
+      `${alphaPercent}%`;
+
+
+    document.getElementById(
+      "queBar"
+    ).style.width =
+      `${quePercent}%`;
+
+
+    updateLeader(
+      alphaVotes,
+      queVotes,
+      total
     );
 
-    if (!response.ok) {
-      throw new Error("Unable to retrieve voting status.");
-    }
-
-    const data = await response.json();
-
-    votingIsOpen = data.votingOpen === true;
-
-    if (votingIsOpen) {
-      voteButton.style.pointerEvents = "auto";
-      voteButton.style.opacity = "1";
-      voteButton.setAttribute("aria-disabled", "false");
-
-      votingStatusMessage.textContent =
-        "Voting is open.";
-    } else {
-      /*
-       * We intentionally keep pointer events enabled
-       * so our click handler can intercept the click.
-       */
-      voteButton.style.pointerEvents = "auto";
-      voteButton.style.opacity = "0.45";
-      voteButton.setAttribute("aria-disabled", "true");
-
-      votingStatusMessage.textContent =
-        "Voting is currently closed.";
-    }
-
-  } catch (error) {
-    console.error("Voting status error:", error);
-
-    // Fail CLOSED if status cannot be verified.
-    votingIsOpen = false;
-
-    voteButton.style.pointerEvents = "auto";
-    voteButton.style.opacity = "0.45";
-    voteButton.setAttribute("aria-disabled", "true");
-
-    votingStatusMessage.textContent =
-      "Voting is currently unavailable.";
   }
-}
 
-checkVotingStatus();
 
-setInterval(checkVotingStatus, 5000);
-</script>
+  /*
+   * =====================================================
+   * CURRENT LEADER
+   * =====================================================
+   */
+
+  function updateLeader(
+    alphaVotes,
+    queVotes,
+    total
+  ) {
+
+    const leader =
+      document.getElementById(
+        "leaderName"
+      );
+
+
+    if (total === 0) {
+
+      leader.textContent =
+        "Awaiting Votes";
+
+      leader.style.color =
+        "#ffffff";
+
+      return;
+
+    }
+
+
+    if (
+      alphaVotes > queVotes
+    ) {
+
+      leader.textContent =
+        "TEAM ALPHA";
+
+      leader.style.color =
+        "#fdb927";
+
+    }
+
+    else if (
+      queVotes > alphaVotes
+    ) {
+
+      leader.textContent =
+        "TEAM QUE";
+
+      leader.style.color =
+        "#9d4edd";
+
+    }
+
+    else {
+
+      leader.textContent =
+        "TIED";
+
+      leader.style.color =
+        "#ffffff";
+
+    }
+
+  }
+
+
+  /*
+   * =====================================================
+   * START APPLICATION
+   * =====================================================
+   *
+   * Everything has now been declared before
+   * the application starts calling functions.
+   */
+
+  checkVotingStatus();
+
+  loadLiveResults();
+
+
+  setInterval(
+    checkVotingStatus,
+    STATUS_REFRESH_INTERVAL
+  );
+
+
+  setInterval(
+    loadLiveResults,
+    RESULTS_REFRESH_INTERVAL
+  );
+
+</script>  
 </body>
 </html>
