@@ -438,12 +438,15 @@
           <a
             id="voteFormButton"
             class="vote-btn"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSeSlSJ6rhsE49YXQZ8z9rcEWA7F6YHYn6qzqyFWx45meRbf-g/viewform"
+            href="https://docs.google.com/forms/d/e/1FAIpQLScvsb7iB5FXVQvkDh56_fH8FuhEyNjdRN-wXIeRhZ5Lv7RxQA/viewform"
             target="_blank"
             rel="noopener noreferrer"
           >
             <span>Cast Your Vote</span>
           </a>
+          <p id="votingStatusMessage">
+            Checking voting status...
+          </p>
         </div>
       </section>
 
@@ -451,11 +454,9 @@
       <div
         id="syncStatus"
         class="sync-status"
-        aria-live="polite"
-      >
-        Connecting to live results...
-      </div>
-
+        aria-live="polite" >
+        
+        </div>
     </main>
   </div>
 
@@ -469,10 +470,10 @@
      */
 
     const GOOGLE_FORM_URL =
-      "https://docs.google.com/forms/d/e/1FAIpQLSeSlSJ6rhsE49YXQZ8z9rcEWA7F6YHYn6qzqyFWx45meRbf-g/viewform";
+      "https://docs.google.com/forms/d/e/1FAIpQLScvsb7iB5FXVQvkDh56_fH8FuhEyNjdRN-wXIeRhZ5Lv7RxQA/viewform";
 
     const LIVE_RESULTS_CSV_URL =
-      "https://docs.google.com/spreadsheets/d/1Tt7Ncm4UHvEwPH6GrtJLljEu4tSoGNdedP6fSAOwXoA/edit?gid=2146085995#gid=2146085995";
+      "https://docs.google.com/spreadsheets/d/1nlVrln5F2jfoYDG30pIV3yxKrZPxrPasfDu8-4PetsA/edit";
 
     const REFRESH_INTERVAL = 3000;
 
@@ -856,9 +857,83 @@
       loadLiveResults,
       REFRESH_INTERVAL
     );
-const CONTROL_API_URL = "https://script.google.com/macros/s/AKfycbyYicE7emly5EnrJzWaYIEL2A--CyO3lnQBX6h3Ax4s52wzLYTvyHmy8dr-Kr59sAAZ/exec";
-
 // status-checking code here
   </script>
+<script>
+const CONTROL_API_URL = "https://script.google.com/macros/s/AKfycbyYicE7emly5EnrJzWaYIEL2A--CyO3lnQBX6h3Ax4s52wzLYTvyHmy8dr-Kr59sAAZ/exec";
+
+const voteButton = document.getElementById("voteFormButton");
+const votingStatusMessage = document.getElementById("votingStatusMessage");
+
+let votingIsOpen = false;
+
+// Prevent navigation whenever voting is closed.
+voteButton.addEventListener("click", function(event) {
+  if (!votingIsOpen) {
+    event.preventDefault();
+
+    votingStatusMessage.textContent =
+      "Voting is currently closed.";
+  }
+});
+
+async function checkVotingStatus() {
+  try {
+    const response = await fetch(
+      CONTROL_API_URL +
+      "?action=status&t=" +
+      Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Unable to retrieve voting status.");
+    }
+
+    const data = await response.json();
+
+    votingIsOpen = data.votingOpen === true;
+
+    if (votingIsOpen) {
+      voteButton.style.pointerEvents = "auto";
+      voteButton.style.opacity = "1";
+      voteButton.setAttribute("aria-disabled", "false");
+
+      votingStatusMessage.textContent =
+        "Voting is open.";
+    } else {
+      /*
+       * We intentionally keep pointer events enabled
+       * so our click handler can intercept the click.
+       */
+      voteButton.style.pointerEvents = "auto";
+      voteButton.style.opacity = "0.45";
+      voteButton.setAttribute("aria-disabled", "true");
+
+      votingStatusMessage.textContent =
+        "Voting is currently closed.";
+    }
+
+  } catch (error) {
+    console.error("Voting status error:", error);
+
+    // Fail CLOSED if status cannot be verified.
+    votingIsOpen = false;
+
+    voteButton.style.pointerEvents = "auto";
+    voteButton.style.opacity = "0.45";
+    voteButton.setAttribute("aria-disabled", "true");
+
+    votingStatusMessage.textContent =
+      "Voting is currently unavailable.";
+  }
+}
+
+checkVotingStatus();
+
+setInterval(checkVotingStatus, 5000);
+</script>
 </body>
 </html>
