@@ -476,7 +476,7 @@
   const CONTROL_API_URL =
     "https://script.google.com/macros/s/AKfycbyYicE7emly5EnrJzWaYIEL2A--CyO3lnQBX6h3Ax4s52wzLYTvyHmy8dr-Kr59sAAZ/exec";
 
-  const RESULTS_REFRESH_INTERVAL = 3000;
+  const RESULTS_REFRESH_INTERVAL = 5000;
   const STATUS_REFRESH_INTERVAL = 5000;
 
 
@@ -509,7 +509,9 @@
  */
 
 let votingIsOpen = false;
-
+let resultsRequestNumber = 0;
+let latestRenderedRequest = 0;
+let highestTotalVotesSeen = 0;
 
 /*
  * LOCK IMMEDIATELY ON PAGE LOAD
@@ -660,105 +662,100 @@ async function checkVotingStatus() {
    * =====================================================
    */
 
-  async function loadLiveResults() {
+ async function loadLiveResults() {
+
+  const requestNumber =
+    ++resultsRequestNumber;
+
+  if (
+    LIVE_RESULTS_CSV_URL.includes(
+      "YOUR_PUBLISHED"
+    )
+  ) {
+    syncStatus.textContent =
+      "Live results are not connected yet.";
+
+    syncStatus.className =
+      "sync-status sync-error";
+
+    return;
+  }
+
+  try {
+
+    syncStatus.textContent =
+      "Updating live results...";
+
+    syncStatus.className =
+      "sync-status";
+
+    const separator =
+      LIVE_RESULTS_CSV_URL.includes("?")
+        ? "&"
+        : "?";
+
+    const url =
+      LIVE_RESULTS_CSV_URL +
+      separator +
+      "t=" +
+      Date.now();
+
+    const response =
+      await fetch(
+        url,
+        {
+          cache: "no-store"
+        }
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "Unable to load voting data."
+      );
+    }
+
+    const csv =
+      await response.text();
 
     /*
-     * Until you replace the CSV placeholder,
-     * don't attempt to fetch results.
+     * Ignore a response if a newer
+     * request has already finished.
      */
-
     if (
-      LIVE_RESULTS_CSV_URL.includes(
-        "YOUR_PUBLISHED"
-      )
+      requestNumber <
+      latestRenderedRequest
     ) {
-
-      syncStatus.textContent =
-        "Live results are not connected yet.";
-
-      syncStatus.className =
-        "sync-status sync-error";
-
       return;
     }
 
+    latestRenderedRequest =
+      requestNumber;
 
-    try {
+    updateResults(csv);
 
-      syncStatus.textContent =
-        "Updating live results...";
+    syncStatus.textContent =
+      "Live results updated";
 
-      syncStatus.className =
-        "sync-status";
-
-
-      /*
-       * Prevent cached Sheet results.
-       */
-
-      const separator =
-        LIVE_RESULTS_CSV_URL.includes("?")
-          ? "&"
-          : "?";
-
-
-      const url =
-        LIVE_RESULTS_CSV_URL +
-        separator +
-        "t=" +
-        Date.now();
-
-
-      const response =
-        await fetch(
-          url,
-          {
-            cache: "no-store"
-          }
-        );
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          "Unable to load voting data."
-        );
-
-      }
-
-
-      const csv =
-        await response.text();
-
-
-      updateResults(csv);
-
-
-      syncStatus.textContent =
-        "Live results updated";
-
-      syncStatus.className =
-        "sync-status sync-success";
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Live vote error:",
-        error
-      );
-
-
-      syncStatus.textContent =
-        "Unable to update live results.";
-
-      syncStatus.className =
-        "sync-status sync-error";
-
-    }
+    syncStatus.className =
+      "sync-status sync-success";
 
   }
+
+  catch (error) {
+
+    console.error(
+      "Live vote error:",
+      error
+    );
+
+    syncStatus.textContent =
+      "Unable to update live results.";
+
+    syncStatus.className =
+      "sync-status sync-error";
+
+  }
+}
 
 
   /*
@@ -929,7 +926,23 @@ async function checkVotingStatus() {
 
     const total =
       alphaVotes + queVotes;
+/*
+ * Ignore stale published-sheet responses
+ * that contain fewer votes than a newer
+ * result already displayed.
+ */
+if (total < highestTotalVotesSeen) {
+  console.warn(
+    "Ignoring stale vote result:",
+    total,
+    "Latest total:",
+    highestTotalVotesSeen
+  );
 
+  return;
+}
+
+highestTotalVotesSeen = total;
 
     const alphaPercent =
       total > 0
