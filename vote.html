@@ -509,9 +509,14 @@
  */
 
 let votingIsOpen = false;
+
 let resultsRequestNumber = 0;
 let latestRenderedRequest = 0;
 let highestTotalVotesSeen = 0;
+
+let alphaVoteBaseline = 0;
+let queVoteBaseline = 0;
+let resetVersion = 0;
 
 /*
  * LOCK IMMEDIATELY ON PAGE LOAD
@@ -563,6 +568,20 @@ async function checkVotingStatus() {
     const data =
       await response.json();
 
+    const newResetVersion =
+  Number(data.resetVersion) || 0;
+
+if (newResetVersion !== resetVersion) {
+  resetVersion = newResetVersion;
+
+  highestTotalVotesSeen = 0;
+}
+
+alphaVoteBaseline =
+  Number(data.alphaVoteBaseline) || 0;
+
+queVoteBaseline =
+  Number(data.queVoteBaseline) || 0;
 
     votingIsOpen =
       data.votingOpen === true;
@@ -832,11 +851,22 @@ async function checkVotingStatus() {
     }
 
 
-    renderResults(
-      alphaVotes,
-      queVotes
-    );
+    const displayedAlphaVotes =
+  Math.max(
+    0,
+    alphaVotes - alphaVoteBaseline
+  );
 
+const displayedQueVotes =
+  Math.max(
+    0,
+    queVotes - queVoteBaseline
+  );
+
+renderResults(
+  displayedAlphaVotes,
+  displayedQueVotes
+);
   }
 
 
