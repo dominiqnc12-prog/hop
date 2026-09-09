@@ -60,27 +60,56 @@
       </p>
     </section>
   </main>
-  <script>
+<script>
 const CONTROL_API_URL = "https://script.google.com/macros/s/AKfycbyYicE7emly5EnrJzWaYIEL2A--CyO3lnQBX6h3Ax4s52wzLYTvyHmy8dr-Kr59sAAZ/exec";
 
-async function checkTicketStatus() {
-  const cashAppButton = document.getElementById("cashAppButton");
-  const eventbriteButton = document.getElementById("eventbriteButton");
-  const statusMessage = document.getElementById("ticketStatusMessage");
+const cashAppButton = document.getElementById("cashAppButton");
+const eventbriteButton = document.getElementById("eventbriteButton");
+const statusMessage = document.getElementById("ticketStatusMessage");
 
+// Default to LOCKED until backend confirms otherwise.
+let ticketsAreOpen = false;
+
+cashAppButton.style.pointerEvents = "none";
+eventbriteButton.style.pointerEvents = "none";
+
+cashAppButton.style.opacity = "0.45";
+eventbriteButton.style.opacity = "0.45";
+
+cashAppButton.style.cursor = "not-allowed";
+eventbriteButton.style.cursor = "not-allowed";
+
+statusMessage.textContent = "Checking ticket availability...";
+
+
+async function checkTicketStatus() {
   try {
     const response = await fetch(
-      CONTROL_API_URL + "?action=status&t=" + Date.now()
+      CONTROL_API_URL +
+      "?action=status&t=" +
+      Date.now(),
+      {
+        cache: "no-store"
+      }
     );
+
+    if (!response.ok) {
+      throw new Error("Unable to retrieve ticket status.");
+    }
 
     const data = await response.json();
 
-    if (data.ticketsOpen) {
+    ticketsAreOpen = data.ticketsOpen === true;
+
+    if (ticketsAreOpen) {
       cashAppButton.style.pointerEvents = "auto";
       eventbriteButton.style.pointerEvents = "auto";
 
       cashAppButton.style.opacity = "1";
       eventbriteButton.style.opacity = "1";
+
+      cashAppButton.style.cursor = "pointer";
+      eventbriteButton.style.cursor = "pointer";
 
       statusMessage.textContent = "Ticket sales are open.";
     } else {
@@ -90,17 +119,27 @@ async function checkTicketStatus() {
       cashAppButton.style.opacity = "0.45";
       eventbriteButton.style.opacity = "0.45";
 
-      statusMessage.textContent = "Ticket sales are currently closed.";
+      cashAppButton.style.cursor = "not-allowed";
+      eventbriteButton.style.cursor = "not-allowed";
+
+      statusMessage.textContent =
+        "Ticket sales are currently closed.";
     }
 
   } catch (error) {
-    console.error(error);
+    console.error("Ticket status error:", error);
+
+    // Fail CLOSED.
+    ticketsAreOpen = false;
 
     cashAppButton.style.pointerEvents = "none";
     eventbriteButton.style.pointerEvents = "none";
 
     cashAppButton.style.opacity = "0.45";
     eventbriteButton.style.opacity = "0.45";
+
+    cashAppButton.style.cursor = "not-allowed";
+    eventbriteButton.style.cursor = "not-allowed";
 
     statusMessage.textContent =
       "Ticket availability could not be verified.";
@@ -111,5 +150,8 @@ checkTicketStatus();
 
 setInterval(checkTicketStatus, 5000);
 </script>
+
+
+ 
 </body>
 </html>
