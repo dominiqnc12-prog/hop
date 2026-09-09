@@ -192,7 +192,9 @@
               >
                 <span>Unlock Voting</span>
               </button>
-
+             <button class="danger-btn" onclick="resetLiveVotes()">
+          <span>Reset Live Votes</span>
+          </button>
             </div>
 
           </div>
@@ -530,6 +532,63 @@
         message;
 
     }
+    async function resetLiveVotes() {
+
+  const confirmed =
+    confirm(
+      "Reset the live scoreboard to 0–0?\n\n" +
+      "Google Form responses will NOT be deleted."
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+
+    setMessage(
+      "Resetting live scoreboard..."
+    );
+
+    const response =
+      await fetch(
+        CONTROL_API_URL +
+        "?action=resetVotes&t=" +
+        Date.now(),
+        {
+          cache: "no-store"
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error ||
+        "Reset failed."
+      );
+    }
+
+    setMessage(
+      "Live scoreboard reset to 0–0."
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Reset error:",
+      error
+    );
+
+    setMessage(
+      "Unable to reset live scoreboard."
+    );
+
+  }
+}
 
   </script>
 
